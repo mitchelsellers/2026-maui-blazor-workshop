@@ -1,0 +1,12 @@
+﻿<article class="card">
+    <div class="row"><strong>@Order.Number</strong><span class="pill">@Order.Status</span></div>
+    <h3>@Order.CustomerName</h3>
+    <p>@Order.Summary</p>
+    <p class="muted">@Order.ScheduledFor.ToLocalTime().ToString("MMM d, yyyy • h:mm tt")</p>
+    <a class="btn" href="@($"/orders/{Order.Id}")">View details</a>
+</article>
+
+@code {
+    [Parameter, EditorRequired] 
+    public WorkOrder Order { get; set; } = default!;
+}

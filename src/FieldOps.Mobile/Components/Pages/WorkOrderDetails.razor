@@ -1,0 +1,29 @@
+﻿@page "/orders/{Id:guid}"
+
+@inject IWorkOrderService WorkOrders
+
+<h1>Work order details</h1>
+
+@if (order is null)
+{
+    <p>Work order not found.</p>
+}
+else
+{
+    <div class="card">
+        <div class="row"><strong>@order.Number</strong><span class="pill">@order.Status</span></div>
+        <h2>@order.CustomerName</h2><p>@order.Summary</p><p><strong>Location:</strong> @order.Address</p>
+        <p><strong>Scheduled:</strong> @order.ScheduledFor.ToLocalTime().ToString("f")</p>
+    </div>
+}
+
+<p><a href="/">← Back to work orders</a></p>
+
+@code {
+    [Parameter] 
+    public Guid Id { get; set; }
+    
+    private WorkOrder? order;
+    
+    protected override async Task OnParametersSetAsync() => order = await WorkOrders.GetByIdAsync(Id);
+}
