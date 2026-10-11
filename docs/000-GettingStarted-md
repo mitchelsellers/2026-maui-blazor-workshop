@@ -1,0 +1,39 @@
+# Step 000 - Getting Started
+
+The goal of this set of instructions is to ensure that your workstation is setup properly and that you are able to fully run/execute the starting-point of the application.  
+
+This should take no more than 10 minutes to complete, and is the starting point for all things related to the project.
+
+## Create New Project
+
+- Create a 'src' folder within your target directory
+- File -> "New Project"
+- Select `.NET MAUI Blazor Hybrid App`
+- Project Name `FieldOps.Mobile`
+- Folder -> Select your `src` directory
+- Check the "Place Solution and project in the same directory" box
+- Select `Next`
+- Select .NET 10 & leave the sample pages
+- Click `Create`
+
+## Validate Application Execution
+
+Within Visual studio, you should now be able to run the application.
+
+You can use the version selector, to pick your terget
+
+![Selector](images/000-Target-Selector.jpg)
+
+Once running you should see the following
+
+![Running App](images/000-Initial-Run-Windows.jpg)
+
+### Troubleshooting
+
+Depending on your system configuration if you see an error message about supporting `ios` or `maccatalyst` the quick fix is to disable those targets, by commenting out this line of the `FieldOps.Mobile` project
+
+```` xml
+<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+````
+
+We will discuss this more in the training.
