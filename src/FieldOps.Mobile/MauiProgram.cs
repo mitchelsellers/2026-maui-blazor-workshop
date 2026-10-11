@@ -36,6 +36,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<ISessionTokenStore, MauiSessionTokenStore>();
         builder.Services.AddTransient<BearerTokenHandler>();
+        builder.Services.AddSingleton<WorkshopDiagnostics>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

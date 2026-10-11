@@ -1,0 +1,31 @@
+﻿@page "/diagnostics"
+
+@inject FieldOps.Mobile.Services.WorkshopDiagnostics Diagnostics
+@inject FieldOps.Core.Services.IWorkOrderService WorkOrders
+
+<h1>Diagnostics</h1>
+
+<p>Measure a repository operation and inspect the debug output for structured logging.</p>
+
+<button class="btn btn-primary" disabled="@busy" @onclick="Run">Run diagnostic</button>
+
+@if (result is not null)
+{
+    <p role="status">@result</p>
+}
+
+@code {
+    private bool busy;
+    private string? result;
+    private async Task Run()
+    {
+        busy = true;
+        try
+        {
+            var orders = await Diagnostics.MeasureAsync("workorders.load", () => WorkOrders.GetAllAsync());
+            result = $"Loaded {orders.Count} work orders. See debug logs for elapsed time.";
+        }
+        catch (Exception) { result = "Diagnostic failed. See debug logs for details."; }
+        finally { busy = false; }
+    }
+}
