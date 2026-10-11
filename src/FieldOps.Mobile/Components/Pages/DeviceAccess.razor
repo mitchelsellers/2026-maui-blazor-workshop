@@ -1,0 +1,55 @@
+﻿@page "/DeviceAccess"
+
+@using FieldOps.Mobile.Services
+
+@inject IDeviceInteractions DeviceInteractions
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Device Features</PageTitle>
+
+<h4>Device Specific Features</h4>
+
+<p>
+    <button class="btn btn-primary" @onclick="TryVibrateDevice" disabled="@(!DeviceInteractions.VibrationSupported())">
+        Try Vibrate Device
+    </button>
+</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="TryCachedLocation">Try Cached Location (Last Known: @LastKnownLocation)</button>
+</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="GetPowerSource" disabled="@(!DeviceInteractions.CanGetPowerSource())">
+        Get Power Source Information: @PowerSource)
+    </button>
+</p>
+
+@code {
+
+    public string LastKnownLocation { get; set; } = null!;
+
+    public string PowerSource { get; set; } = "Not Checked";
+
+    private async Task TryVibrateDevice()
+    {
+        if (DeviceInteractions.VibrationSupported())
+        {
+            DeviceInteractions.VibrateDevice();
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Vibration is not supported");
+        }
+    }
+
+    private async Task TryCachedLocation()
+    {
+        LastKnownLocation = await DeviceInteractions.GetLastKnownLocationAsync();
+    }
+
+    private void GetPowerSource()
+    {
+        PowerSource = DeviceInteractions.GetPowerSource();
+    }
+}

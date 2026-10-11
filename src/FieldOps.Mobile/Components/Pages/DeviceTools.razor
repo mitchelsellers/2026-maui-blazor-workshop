@@ -1,0 +1,58 @@
+﻿@page "/device"
+
+@using FieldOps.Mobile.Services
+@inject IDeviceContextService Device
+@using Microsoft.Extensions.Logging
+@inject ILogger<DeviceTools> Logger
+
+<h1>Device capabilities</h1>
+
+<p>Connectivity: <strong>@connection</strong></p>
+
+<button class="btn btn-primary" @onclick="Refresh">Refresh connectivity</button>
+
+<h2>Photo picker</h2>
+<p>Choose an existing image; this lab displays its filename but does not upload or persist it.</p>
+
+<button class="btn btn-primary" @onclick="PickAsync">Pick a photo</button>
+
+@if (photo is not null)
+{
+	<p role="status">Selected: @photo</p>
+}
+
+@if (error is not null)
+{
+	<p class="error" role="alert">@error</p>
+}
+
+<h2>Local preference</h2>
+
+<p>Last viewed work order: @(lastOrder?.ToString() ?? "none")</p>
+<button class="btn" @onclick="LoadPreferenceAsync">Read saved preference</button>
+
+@code {
+	private string connection = "Unknown";
+	private string? photo, error;
+	private Guid? lastOrder;
+	protected override async Task OnInitializedAsync()
+	{
+		Refresh();
+		await LoadPreferenceAsync();
+	}
+	private void Refresh() => connection = Device.IsConnected ? "Internet access reported" : "No internet access reported";
+	private async Task LoadPreferenceAsync() => lastOrder = await Device.GetLastViewedOrderAsync();
+	private async Task PickAsync()
+	{
+		error = null;
+		try
+		{
+			photo = await Device.PickPhotoNameAsync();
+		}
+		catch (Exception ex)
+		{
+			Logger.LogWarning(ex, "Photo selection unavailable");
+			error = "Photo selection was cancelled or is unavailable.";
+		}
+	}
+}

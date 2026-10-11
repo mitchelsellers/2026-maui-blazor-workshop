@@ -5,6 +5,7 @@
 @inject IWorkOrderService WorkOrders
 @using Microsoft.Extensions.Logging
 @inject ILogger<WorkOrderDetails> Logger
+@inject FieldOps.Mobile.Services.IDeviceContextService Device
 
 <h1>Work order details</h1>
 
@@ -55,6 +56,7 @@ else
 		try
 		{
 			order = await WorkOrders.GetByIdAsync(Id, token);
+			await Device.SaveLastViewedOrderAsync(Id);
 		}
 		catch (OperationCanceledException) when (token.IsCancellationRequested)
 		{

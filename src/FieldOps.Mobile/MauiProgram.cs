@@ -24,6 +24,8 @@ public static class MauiProgram
             client.BaseAddress = new Uri(ApiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(15);
         });
+        builder.Services.AddSingleton<IDeviceContextService, MauiDeviceContextService>();
+        builder.Services.AddSingleton<IDeviceInteractions, MauiDeviceInteractions>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
