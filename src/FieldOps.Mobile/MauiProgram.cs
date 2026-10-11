@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FieldOps.Core.Services;
+using FieldOps.Mobile.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FieldOps.Mobile;
 
@@ -16,8 +18,10 @@ public static class MauiProgram
 
         builder.Services.AddMauiBlazorWebView();
 
+        builder.Services.AddSingleton<IWorkOrderService, MockWorkOrderService>();
+
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
+        builder.Services.AddBlazorWebViewDeveloperTools();
 		builder.Logging.AddDebug();
 #endif
 

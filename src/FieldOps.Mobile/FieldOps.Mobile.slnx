@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="FieldOps.Mobile.csproj" />
+  <Project Path="../FieldOps.Core/FieldOps.Core.csproj" />
+  <Project Path="FieldOps.Mobile.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>
