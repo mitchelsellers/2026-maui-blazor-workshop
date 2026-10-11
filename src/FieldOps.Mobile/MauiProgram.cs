@@ -19,11 +19,17 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
 
         //Make API useage needed
-        builder.Services.AddHttpClient<IWorkOrderService, ApiWorkOrderService>(client =>
+        builder.Services.AddHttpClient<ApiWorkOrderService>(client =>
         {
             client.BaseAddress = new Uri(ApiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(15);
         });
+
+        //Add services for data, manually registering so we have all needed items
+        builder.Services.AddSingleton<IWorkOrderService>(sp => sp.GetRequiredService<OfflineWorkOrderService>());
+        builder.Services.AddSingleton<OfflineWorkOrderService>(sp => new OfflineWorkOrderService(sp.GetRequiredService<ApiWorkOrderService>(), sp.GetRequiredService<ILogger<OfflineWorkOrderService>>()));
+
+
         builder.Services.AddSingleton<IDeviceContextService, MauiDeviceContextService>();
         builder.Services.AddSingleton<IDeviceInteractions, MauiDeviceInteractions>();
 

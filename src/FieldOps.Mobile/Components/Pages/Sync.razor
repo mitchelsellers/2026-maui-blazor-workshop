@@ -1,0 +1,42 @@
+﻿@page "/sync"
+
+@inject FieldOps.Mobile.Services.OfflineWorkOrderService Offline
+
+<h1>Offline synchronization</h1>
+
+<p>Local edits are saved to SQLite and queued until you choose to synchronize.</p>
+
+<p role="status">Pending edits: @pending</p>
+
+<button class="btn btn-success" disabled="@busy" @onclick="SyncNow">Synchronize now</button>
+
+@if (message is not null)
+{
+	<p role="status">@message</p>
+}
+
+@code {
+	private int pending;
+	private bool busy;
+	private string? message;
+	protected override async Task OnInitializedAsync() => pending = await Offline.PendingCountAsync();
+	private async Task SyncNow()
+	{
+		busy = true;
+		message = null;
+		try
+		{
+			var count = await Offline.SyncAsync();
+			message = $"Uploaded {count} change(s).";
+		}
+		catch (Exception)
+		{
+			message = "Sync failed. Pending edits remain on this device; retry later.";
+		}
+		finally
+		{
+			pending = await Offline.PendingCountAsync();
+			busy = false;
+		}
+	}
+}
