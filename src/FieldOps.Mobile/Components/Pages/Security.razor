@@ -1,0 +1,62 @@
+﻿@page "/security"
+
+@inject FieldOps.Mobile.Services.ISessionTokenStore Tokens
+
+<h1>Authentication architecture</h1>
+
+<p>This lab demonstrates protected credential storage and request handling. It does not provide a sign-in flow or authenticate a user.</p>
+
+<p>Token stored on device: <strong>@(stored ? "Yes" : "No")</strong></p>
+
+<button class="btn btn-primary" @onclick="Clear">Clear stored token</button>
+
+<button class="btn btn-danger" @onclick="GenerateRandom">Generate Random Token</button>
+
+@if (error is not null)
+{
+	<p role="alert" class="error">@error</p>
+}
+
+@code {
+	private bool stored;
+	private string? error;
+	protected override async Task OnInitializedAsync() => await Refresh();
+	private async Task Refresh()
+	{
+		try
+		{
+			stored = !string.IsNullOrEmpty(await Tokens.ReadAsync());
+		}
+		catch (Exception)
+		{
+			error = "Secure storage is unavailable on this device.";
+		}
+	}
+
+	private async Task Clear()
+	{
+		try
+		{
+			await Tokens.ClearAsync();
+			await Refresh();
+		}
+		catch (Exception)
+		{
+			error = "Unable to clear secure storage.";
+		}
+	}
+
+	private async Task GenerateRandom()
+	{
+		try
+		{
+			var token = Guid.NewGuid().ToString();
+			await Tokens.SaveAsync(token);
+			await Refresh();
+		}
+		catch (Exception)
+		{
+			error = "Unable to write to secure storage.";
+		}
+	}
+}

@@ -23,7 +23,8 @@ public static class MauiProgram
         {
             client.BaseAddress = new Uri(ApiSettings.BaseUrl);
             client.Timeout = TimeSpan.FromSeconds(15);
-        });
+        })
+        .AddHttpMessageHandler<BearerTokenHandler>();
 
         //Add services for data, manually registering so we have all needed items
         builder.Services.AddSingleton<IWorkOrderService>(sp => sp.GetRequiredService<OfflineWorkOrderService>());
@@ -32,6 +33,9 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IDeviceContextService, MauiDeviceContextService>();
         builder.Services.AddSingleton<IDeviceInteractions, MauiDeviceInteractions>();
+
+        builder.Services.AddSingleton<ISessionTokenStore, MauiSessionTokenStore>();
+        builder.Services.AddTransient<BearerTokenHandler>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
