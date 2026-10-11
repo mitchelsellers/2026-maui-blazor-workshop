@@ -6,6 +6,7 @@
 @using Microsoft.Extensions.Logging
 @inject ILogger<WorkOrderDetails> Logger
 @inject FieldOps.Mobile.Services.IDeviceContextService Device
+@inject FieldOps.Mobile.Services.IYouTubePlaybackService YouTubePlaybackService
 
 <h1>Work order details</h1>
 
@@ -30,6 +31,7 @@ else
 		<h2>@order.CustomerName</h2><p>@order.Summary</p><p><strong>Location:</strong> @order.Address</p>
 		<p><strong>Scheduled:</strong> @order.ScheduledFor.ToLocalTime().ToString("f")</p>
 		<p><a href="/orders/@Id/edit">Edit work order</a></p>
+		<p><button class="btn btn-secondary" @onclick="ViewVideoAsync">View Video</button></p>
 	</div>
 }
 
@@ -73,6 +75,13 @@ else
 				loading = false;
 		}
 	}
+
+	private async Task ViewVideoAsync()
+	{
+		var videoId = "GYReKppBkr4";
+		await YouTubePlaybackService.ShowAsync(videoId);
+	}
+
 	public void Dispose()
 	{
 		disposed = true;
