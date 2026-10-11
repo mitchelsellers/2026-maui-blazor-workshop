@@ -1,4 +1,4 @@
-# Step 000 - Getting Started
+# Step 001 - Getting Started (Foundation)
 
 The goal of this set of instructions is to ensure that your workstation is setup properly and that you are able to fully run/execute the starting-point of the application.  
 
@@ -22,11 +22,11 @@ Within Visual studio, you should now be able to run the application.
 
 You can use the version selector, to pick your terget
 
-![Selector](images/000-Target-Selector.jpg)
+![Selector](images/001-Target-Selector.jpg)
 
 Once running you should see the following
 
-![Running App](images/000-Initial-Run-Windows.jpg)
+![Running App](images/001-Initial-Run-Windows.jpg)
 
 ### Troubleshooting
 
@@ -37,3 +37,7 @@ Depending on your system configuration if you see an error message about support
 ````
 
 We will discuss this more in the training.
+
+## Classroom Notes
+
+We will dive into the key components within here
