@@ -18,7 +18,12 @@ public static class MauiProgram
 
         builder.Services.AddMauiBlazorWebView();
 
-        builder.Services.AddSingleton<IWorkOrderService, MockWorkOrderService>();
+        //Make API useage needed
+        builder.Services.AddHttpClient<IWorkOrderService, ApiWorkOrderService>(client =>
+        {
+            client.BaseAddress = new Uri(ApiSettings.BaseUrl);
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
