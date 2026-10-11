@@ -28,6 +28,7 @@ else
 		<div class="row"><strong>@order.Number</strong><span class="pill">@order.Status</span></div>
 		<h2>@order.CustomerName</h2><p>@order.Summary</p><p><strong>Location:</strong> @order.Address</p>
 		<p><strong>Scheduled:</strong> @order.ScheduledFor.ToLocalTime().ToString("f")</p>
+		<p><a href="/orders/@Id/edit">Edit work order</a></p>
 	</div>
 }
 

@@ -1,0 +1,94 @@
+﻿@page "/orders/{Id:guid}/edit"
+
+@implements IDisposable
+
+@inject IWorkOrderService WorkOrders
+@inject NavigationManager Navigation
+@using Microsoft.Extensions.Logging
+@inject ILogger<EditWorkOrder> Logger
+
+<h1>Edit work order</h1>
+
+@if (loading)
+{
+	<p role="status">Loading…</p>
+}
+else if (notFound)
+{
+
+	<p>Work order not found.</p>
+}
+else
+{
+	<EditForm Model="model" OnValidSubmit="SaveAsync" FormName="edit-work-order">
+		<DataAnnotationsValidator />
+		<ValidationSummary />
+		<div class="form-field">
+			<label for="summary">Summary</label>
+			<InputText id="summary" class="form-control" @bind-Value="model.Summary" />
+			<ValidationMessage For="@(() => model.Summary)" />
+		</div>
+		<div class="form-field">
+			<label for="status">Status</label>
+			<InputSelect id="status" class="form-control" @bind-Value="model.Status">
+				@foreach (var status in Enum.GetValues<WorkOrderStatus>())
+				{
+					<option value="@status">@status</option>
+				}
+			</InputSelect>
+		</div>
+		<button class="btn" type="submit" disabled="@saving">@(saving ? "Saving…" : "Save changes")</button>
+	</EditForm>
+	@if (error is not null)
+	{
+		<p role="alert" class="error">@error</p>
+	}
+}
+
+<p><a href="/orders/@Id">← Back to details</a></p>
+
+@code {
+	[Parameter]
+	public Guid Id { get; set; }
+	private UpdateWorkOrderRequest model = new();
+	private readonly CancellationTokenSource lifetime = new();
+	private bool loading = true, saving, notFound;
+	private string? error;
+	protected override async Task OnParametersSetAsync()
+	{
+		loading = true;
+		error = null;
+		try
+		{
+			var order = await WorkOrders.GetByIdAsync(Id, lifetime.Token);
+			notFound = order is null;
+			if (order is not null) model = new() { Summary = order.Summary, Status = order.Status };
+		}
+		catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Loading edit form failed");
+			error = "Unable to load order.";
+		}
+		finally { loading = false; }
+	}
+	private async Task SaveAsync()
+	{
+		if (saving) return;
+		saving = true; error = null;
+		try
+		{
+			var updated = await WorkOrders.UpdateAsync(Id, model, lifetime.Token);
+			if (updated is null) { notFound = true; return; }
+			Navigation.NavigateTo($"/orders/{Id}");
+		}
+		catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+		catch (Exception ex)
+		{
+			Logger.LogError(ex, "Saving order failed");
+			error = "Unable to save. Please try again.";
+		}
+		finally { saving = false; }
+	}
+	public void Dispose() { lifetime.Cancel(); lifetime.Dispose(); }
+}

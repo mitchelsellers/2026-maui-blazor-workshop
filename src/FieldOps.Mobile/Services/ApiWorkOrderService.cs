@@ -18,5 +18,11 @@ public sealed class ApiWorkOrderService(HttpClient http) : IWorkOrderService
         return await response.Content.ReadFromJsonAsync<WorkOrder>(cancellationToken: cancellationToken);
     }
 
-    public Task<WorkOrder?> UpdateAsync(Guid id, UpdateWorkOrderRequest request, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+    public async Task<WorkOrder?> UpdateAsync(Guid id, UpdateWorkOrderRequest request, CancellationToken cancellationToken = default)
+    {
+        using var response = await http.PutAsJsonAsync($"api/workorders/{id}", request, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotFound) return null;
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<WorkOrder>(cancellationToken: cancellationToken);
+    }
 }
