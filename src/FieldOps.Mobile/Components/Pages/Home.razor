@@ -1,17 +1,87 @@
 ﻿@page "/"
 
+@implements IDisposable
+
 @inject IWorkOrderService WorkOrders
+@using Microsoft.Extensions.Logging
+@inject ILogger<Home> Logger
 
 <h1>Assigned work orders</h1>
+
 <p class="muted">Your upcoming field visits</p>
 
-@foreach (var order in orders)
+<div class="toolbar">
+    <input aria-label="Search work orders" placeholder="Search customer or job" @bind="search" @bind:event="oninput" />
+    <button class="btn" @onclick="LoadAsync" disabled="@loading">Refresh</button>
+</div>
+
+@if (loading)
 {
-    <WorkOrderCard Order="order" />
+    <p role="status">Loading work orders…</p>
+}
+else if (error is not null)
+{
+    <div class="error" role="alert">Unable to load work orders. Please try again.</div>
+}
+else if (filtered.Count == 0)
+{
+    <p>No matching work orders found.</p>
+}
+else
+{
+    <p class="muted">@filtered.Count work order(s)</p>
+    @foreach (var order in filtered)
+    {
+        <WorkOrderCard @key="order.Id" Order="order" />
+    }
 }
 
 @code {
-    private IReadOnlyList<WorkOrder> orders = [];
+    private bool loading = true;
+    private string search = string.Empty;
+    private string? error; 
 
-    protected override async Task OnInitializedAsync() => orders = await WorkOrders.GetAllAsync();
+    private IReadOnlyList<WorkOrder> orders = [];
+    private List<WorkOrder> filtered => orders.Where(x => x.CustomerName.Contains(search, StringComparison.OrdinalIgnoreCase) 
+                    || x.Number.Contains(search, StringComparison.OrdinalIgnoreCase) 
+                    || x.Summary.Contains(search, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+
+    private readonly CancellationTokenSource lifetime = new();
+
+    private bool disposed;
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        if (disposed) return;
+        
+        loading = true; 
+        error = null;
+        try 
+        { 
+            orders = await WorkOrders.GetAllAsync(lifetime.Token); 
+        }
+        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) 
+        { 
+			return; // Cacellation requested, ignore
+        }
+        catch (Exception ex) 
+        { 
+            Logger.LogError(ex, "Failed to load work orders"); // Where does this go?
+            error = "load-failed"; 
+        }
+        finally 
+        { 
+            loading = false; 
+        }
+    }
+
+    public void Dispose() 
+    { 
+        disposed = true; 
+        lifetime.Cancel(); 
+        lifetime.Dispose(); 
+    }
 }
